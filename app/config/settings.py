@@ -1,6 +1,13 @@
 import os
 
 class Settings:
+    # Database backend: "sqlite" or "postgres"
+    DB_BACKEND: str = os.getenv('DB_BACKEND', 'sqlite')
+
+    # SQLite settings
+    SQLITE_DB_PATH: str = os.getenv('SQLITE_DB_PATH', '.././meal_calorie_db.sqlite3')
+
+    # Postgres settings
     DB_USER: str = os.getenv('POSTGRES_USER', 'postgres')
     DB_PASSWORD: str = os.getenv('POSTGRES_PASSWORD', 'postgres')
     DB_HOST: str = os.getenv('POSTGRES_HOST', 'localhost')
@@ -17,6 +24,8 @@ class Settings:
 
     @property
     def database_url(self):
+        if self.DB_BACKEND == "sqlite":
+            return f"sqlite+aiosqlite:///{self.SQLITE_DB_PATH}"
         return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
 settings = Settings()

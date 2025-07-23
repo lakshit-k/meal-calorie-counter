@@ -27,6 +27,7 @@ class BaseController:
 
     async def get(self, request: Request):
         try:
+            
             return await self.process_get(request)
         except (
             BadRequestException,
@@ -55,11 +56,13 @@ class BaseController:
         ) as exc:
             return self.handle_http_exception(exc)
         except Exception as exc:
+            import traceback
+            traceback.print_exc()
             return self.handle_unexpected_exception(exc)
 
     async def get_by_id(self, item_id: int, request: Request):
         try:
-            return await self.process_get_by_id(item_id, request)
+                return await self.process_get_by_id(item_id, request)
         except (
             BadRequestException,
             UnauthorizedException,
@@ -106,19 +109,19 @@ class BaseController:
             return self.handle_unexpected_exception(exc)
 
     # Methods to be overridden by subclasses
-    async def process_get(self, request: Request):
+    async def process_get(self, request: Request, **kwargs):
         raise MethodNotAllowedException("GET not implemented")
 
-    async def process_post(self, request: Request):
+    async def process_post(self, request: Request, **kwargs):
         raise MethodNotAllowedException("POST not implemented")
 
-    async def process_get_by_id(self, item_id: int, request: Request):
+    async def process_get_by_id(self, item_id: int, request: Request, **kwargs):
         raise MethodNotAllowedException("GET by ID not implemented")
 
-    async def process_put(self, item_id: int, request: Request):
+    async def process_put(self, item_id: int, request: Request, **kwargs):
         raise MethodNotAllowedException("PUT not implemented")
 
-    async def process_delete(self, item_id: int, request: Request):
+    async def process_delete(self, item_id: int, request: Request, **kwargs):
         raise MethodNotAllowedException("DELETE not implemented")
 
     def handle_http_exception(self, exc: HTTPException):
@@ -130,4 +133,5 @@ class BaseController:
     def handle_unexpected_exception(self, exc: Exception):
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"detail": "Internal
+            content={"detail": f"Internal Server Error {str(exc)}"}
+        )

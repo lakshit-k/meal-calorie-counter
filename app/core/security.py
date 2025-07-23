@@ -17,9 +17,10 @@ def verify_password(password: str, hashed: str, salt: str) -> bool:
 
 class DBSessionMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
-        request.state.db = get_db()
-        response = await call_next(request)
-        return response
+        async with AsyncSessionLocal() as db:
+            request.state.db = db
+            response = await call_next(request)
+            return response
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
