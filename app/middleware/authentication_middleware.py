@@ -1,15 +1,32 @@
+import re
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
-from starlette.responses import Response
+from starlette.responses import Response, JSONResponse
 
-EXEMPT_PATHS = {"/", "/api/v1/login", "/api/v1/register"}
+from app.processors.auth_processor import AuthProcessor
+
+EXEMPT_PATH_PATTERNS = [
+    r"^/api/v1/auth/login/?$",
+    r"^/api/v1/auth/register/?$",
+    r"^/api/v1/auth/refresh/?$",
+    r"^/api/v1/auth/logout/?$",
+]
 
 class CustomAuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
-        if request.url.path in EXEMPT_PATHS:
+        path = request.url.path
+        if any(re.match(pattern, path) for pattern in EXEMPT_PATH_PATTERNS):
             return await call_next(request)
-        # ...your auth logic here...
-        # If not authenticated:
-        # return Response("Unauthorized", status_code=401)
+        auth_header = request.headers.get("authorization")
+        if not auth_header or not auth_header.lower().startswith("bearer "):
+            return JSONResponse(
+                {"detail": "Unauthorized: Missing or invalid token."}, status_code=401
+            )
+        token = auth_header.split(" ", 1)[1]
+        payload = AuthProcessor.verify_token(token, expected_type="access")
+        if not payload:
+            return JSONResponse(
+                {"detail": "Unauthorized: Invalid or expired token."}, status_code=401
+            )
+        request.state.user = payload
         return await call_next(request)
-

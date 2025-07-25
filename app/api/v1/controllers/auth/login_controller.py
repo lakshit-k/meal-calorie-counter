@@ -2,7 +2,7 @@ from fastapi import Request
 from app.api.deps import BaseController
 from app.managers.user_manager import UserManager
 from app.schemas.auth import UserLogin
-from app.core.security import verify_password
+from app.middleware.security import verify_password
 from app.processors.auth_processor import AuthProcessor
 from app.utils.exceptions import UnauthorizedException
 from sqlalchemy.ext.asyncio import AsyncSession

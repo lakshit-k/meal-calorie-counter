@@ -1,10 +1,8 @@
 from fastapi import FastAPI
 from app.api.v1.controllers import all_routers as v1_routers
 from app.middleware.authentication_middleware import CustomAuthMiddleware
-from app.core.rate_limiter import RateLimiterMiddleware
-from app.core.security import SecurityHeadersMiddleware, DBSessionMiddleware
-from app.config.settings import settings
-print("App is using database:", settings.database_url)
+from app.middleware.rate_limiter import RateLimiterMiddleware
+from app.middleware.security import SecurityHeadersMiddleware, DBSessionMiddleware
 
 app = FastAPI(title="Meal Calorie Counter API")
 

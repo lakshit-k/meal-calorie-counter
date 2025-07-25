@@ -22,6 +22,8 @@ class Settings:
     JWT_SECRET: str = os.getenv('JWT_SECRET', 'supersecretjwt')
     JWT_ALGORITHM: str = os.getenv('JWT_ALGORITHM', 'HS256')
 
+    USDA_API_KEY: str = os.getenv('USDA_API_KEY', '')
+
     @property
     def database_url(self):
         if self.DB_BACKEND == "sqlite":

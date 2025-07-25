@@ -2,9 +2,10 @@ from fastapi import Request
 from app.api.deps import BaseController
 from app.managers.user_manager import UserManager
 from app.schemas.auth import UserCreate, UserRead
-from app.core.security import hash_password
+from app.middleware.security import hash_password
 from app.utils.exceptions import BadRequestException
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.processors.auth_processor import AuthProcessor
 
 class RegisterController(BaseController):
 
@@ -24,4 +25,11 @@ class RegisterController(BaseController):
             password_hash=password_hash,
             password_salt=password_salt
         )
-        return UserRead.model_validate(user)
+        access_token = AuthProcessor.create_access_token({"sub": str(user.uuid), "email": user.email})
+        refresh_token = AuthProcessor.create_refresh_token({"sub": str(user.uuid), "email": user.email})
+        return {
+            "user_created": True,
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "token_type": "bearer"
+        }

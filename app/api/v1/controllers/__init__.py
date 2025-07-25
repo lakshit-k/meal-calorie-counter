@@ -1,6 +1,5 @@
-from .auth import routes as auth_router
-from .calories import CaloriesController as calories_router
+from .auth import routes as auth_routers
 
-all_routers = [ 
-    calories_router("/calories").router
-]+ auth_router
+from .calories import routes as caloris_routers
+
+all_routers = auth_routers + caloris_routers

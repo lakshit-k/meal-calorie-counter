@@ -7,5 +7,5 @@ class LogoutController(BaseController):
         super().__init__(prefix)
         self.add_new_route("/", "POST", self.post)
 
-    async def process_post(self,db: AsyncSession, request: Request):
+    async def process_post(self, request: Request):
         return {"message": "Logout successful (client should discard token)"}
