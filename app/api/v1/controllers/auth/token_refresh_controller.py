@@ -3,6 +3,7 @@ from app.api.deps import BaseController
 from app.processors.auth_processor import AuthProcessor
 from app.utils.exceptions import UnauthorizedException
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.managers.redis_manager import RedisManager
 
 class RefreshController(BaseController):
     def __init__(self, prefix: str):
@@ -13,6 +14,8 @@ class RefreshController(BaseController):
         data = await request.json()
         db: AsyncSession = request.state.db
         token = data.get("refresh_token")
+        if await RedisManager.get_key(f"blacklist:{token}"):
+            raise UnauthorizedException("Refresh token is blacklisted")
         payload = AuthProcessor.verify_token(token, expected_type="refresh")
         if not payload:
             raise UnauthorizedException("Invalid refresh token")
